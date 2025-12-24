@@ -28,6 +28,7 @@
 - **Gradient Backgrounds**: Multi-color gradients that create depth
 - **Responsive Layout**: Adapts seamlessly to any screen size
 - **Dark Theme**: Easy on the eyes with modern color palette
+- **⚙️ Customizable Settings**: Comprehensive settings dialog with personalization options
 
 ### 🚀 **Dual Interface System**
 Choose your experience:
@@ -61,6 +62,15 @@ Choose your experience:
 - **Hot-Swap Cameras**: Switch between cameras without restarting
 - **High Resolution**: Supports up to 1280x720 video feed
 - **Mirror Mode**: Flipped view for natural interaction
+
+### ⚙️ **Fully Customizable Options**
+- **Custom Threat Levels**: Add your own threat levels (e.g., EXTREME, CRITICAL) with custom colors
+- **Custom Status Types**: Create unlimited status types (e.g., SUSPECT, ALLY, CONTRACTOR) with custom colors
+- **Custom Gender Options**: Add any gender options you need
+- **Profile Defaults**: Set default values for new profiles
+- **Recognition Tuning**: Adjust thresholds via GUI without code editing
+- **Performance Options**: Configure frame processing and camera settings
+- **Persistent Storage**: All customizations saved automatically
 
 ## 📋 Requirements
 
@@ -138,6 +148,7 @@ python main_modern.py
 **Controls:**
 - Click **Camera dropdown** to switch cameras
 - Click **📸 Add Person** to register new faces
+- Click **⚙️ Settings** to customize options (threat levels, status types, colors, etc.)
 - Profile updates automatically when face is recognized
 
 ---
@@ -229,20 +240,93 @@ Controls:
 
 ## 🎨 Customization
 
-### Adjust Recognition Threshold
+### ⚙️ Using the Settings Dialog (Recommended)
 
-In `main_modern.py`, line ~760:
-```python
-if min_distance < 0.8:  # Change this value
-    name = self.known_face_names[best_match_idx]
+Click **⚙️ Settings** in the modern interface to access the comprehensive settings system:
+
+#### ⚠️ **Threat Levels Tab**
+Add, edit, or remove custom threat levels with colors:
+- **Add New**: Click "➕ Add New", enter name (e.g., "EXTREME"), pick a color (e.g., purple)
+- **Edit**: Select a threat level, click "✏️ Edit Selected", change name/color
+- **Remove**: Select and click "🗑️ Remove Selected"
+- **Built-in defaults**: LOW (green), MODERATE (orange), HIGH (red), CRITICAL (dark red)
+
+**Example Custom Threat Levels:**
+- EXTREME - Purple (#8B00FF)
+- MINIMAL - Light Blue (#87CEEB)
+- UNKNOWN - Gray (#808080)
+
+#### 📋 **Status Types Tab**
+Create unlimited custom status types with colors:
+- **Add New**: Click "➕ Add New", enter name (e.g., "SUSPECT", "ALLY"), pick a color
+- **Edit/Remove**: Same as threat levels
+- **Built-in defaults**: CIVILIAN (gray), VIP (gold), EMPLOYEE (blue), VISITOR (purple), WANTED (red), UNKNOWN (gray)
+
+**Example Custom Status Types:**
+- CONTRACTOR - Orange (#FF8C00)
+- FAMILY - Pink (#FF69B4)
+- SECURITY - Navy (#000080)
+- SUSPECT - Dark Red (#8B0000)
+
+#### 🔧 **Other Options Tab**
+- **Gender Options**: Add custom gender options (e.g., "Non-binary", "Prefer not to say")
+- Click "➕ Add Option" to add new options
+- Built-in defaults: Male, Female, Other, Prefer not to say
+
+#### 📸 **Face Scanner Tab**
+- **Auto Capture**: Enable/disable auto-capture mode by default
+- **Capture Interval**: Time between auto-captures (0.5-10 seconds)
+- **Target Captures**: How many images to capture automatically (1-20)
+- **Default Values**: Set default status, threat level, and gender for new profiles
+
+#### 🎯 **Recognition Tab**
+- **Recognition Threshold**: Adjust face matching sensitivity (0.1-1.5)
+  - Lower = stricter matching (fewer false positives)
+  - Higher = more lenient (better for varied lighting)
+  - Default: 0.80
+- **Detection Confidence**: Minimum confidence to detect a face (0.1-1.0)
+- **Performance**: Process every N frames (1-10) for performance tuning
+
+#### 🎥 **Video Tab**
+- **Default Camera**: Choose startup camera (0-9)
+- **Resolution**: Set camera width and height
+  - Common resolutions: 640x480, 1280x720, 1920x1080
+- **Mirror Mode**: Enable/disable horizontal video flip
+
+#### 🎨 **Interface Tab**
+- **Show FPS Counter**: Toggle FPS display
+- **Show Confidence**: Display detection confidence values
+- **Animation Speed**: Adjust UI animation speed (0.5x - 2.0x)
+
+### 💾 Settings Storage
+
+All settings are automatically saved to `settings.json` in the project root:
+
+```json
+{
+    "threat_levels": [
+        {"name": "LOW", "color": "#00C864"},
+        {"name": "HIGH", "color": "#FF4444"},
+        {"name": "EXTREME", "color": "#8B00FF"}
+    ],
+    "status_types": [
+        {"name": "CIVILIAN", "color": "#6C757D"},
+        {"name": "SUSPECT", "color": "#DC143C"}
+    ],
+    "gender_options": ["Male", "Female", "Other", "Non-binary"],
+    "recognition_threshold": 0.8,
+    "camera_width": 1280,
+    "camera_height": 720
+}
 ```
-- Lower value = stricter matching (fewer false positives)
-- Higher value = more lenient (better for varied lighting)
-- Recommended range: 0.6 - 1.0
 
-### Modify Profile Fields
+**Manual Editing**: You can edit `settings.json` directly, but using the Settings dialog is recommended for ease of use.
 
-Edit `person_profiles.py`, `PersonProfile` class:
+### 🔧 Advanced Code Customization
+
+#### Modify Profile Fields
+
+Edit [person_profiles.py](person_profiles.py), `PersonProfile` class:
 ```python
 ---
 
@@ -407,6 +491,8 @@ light-recon-face-recognition/
 ├── 🚀 launcher.py                    # Main launcher (START HERE!)
 ├── 🎨 main_modern.py                 # Modern PyQt6 interface
 ├── 📸 face_scanner_modern.py         # Modern registration tool
+├── ⚙️ settings_dialog.py             # Settings customization dialog
+├── 💾 settings_manager.py            # Settings persistence manager
 │
 ├── ⚡ main.py                        # Classic interface (legacy)
 ├── 📋 person_profiles.py             # Classic UI + profile logic
@@ -423,6 +509,7 @@ light-recon-face-recognition/
 │       ├── [name]_2.jpg             # Face image 2
 │       └── profile.json             # Profile data
 │
+├── ⚙️ settings.json                  # User settings & customizations
 ├── 📦 requirements.txt               # Python dependencies
 └── 📖 README.md                      # This file
 ```
