@@ -12,6 +12,8 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty, QRect, QPoint
 from PyQt6.QtGui import QImage, QPixmap, QPainter, QColor, QLinearGradient, QFont, QPainterPath
 from person_profiles import get_profile, ProfileManager
+from settings_manager import settings
+from settings_dialog import SettingsDialog
 import os
 from datetime import datetime
 
@@ -276,22 +278,29 @@ class ProfileCard(GlassPanel):
             # Update name
             self.name_label.setText(profile.name)
             
-            # Update status badge
+            # Update status badge with dynamic colors from settings
             self.status_badge.setText(profile.status)
             
-            # Color code by status and threat level
+            # Get color from settings (with fallback logic)
             if profile.status == "SCANNING":
                 badge_color = "rgba(100, 150, 255, 255)"
             elif profile.status == "UNIDENTIFIED":
                 badge_color = "rgba(255, 152, 0, 255)"
-            elif profile.threat_level == "LOW":
-                badge_color = "rgba(0, 230, 118, 255)"
-            elif profile.threat_level == "MODERATE":
-                badge_color = "rgba(255, 152, 0, 255)"
-            elif profile.threat_level == "HIGH":
-                badge_color = "rgba(244, 67, 54, 255)"
             else:
-                badge_color = "rgba(120, 144, 156, 255)"
+                # Try to get custom color from settings
+                status_color = settings.get_status_color(profile.status)
+                if status_color:
+                    # Convert hex to rgba
+                    badge_color = self._hex_to_rgba(status_color)
+                elif profile.threat_level:
+                    # Fallback to threat level color
+                    threat_color = settings.get_threat_level_color(profile.threat_level)
+                    if threat_color:
+                        badge_color = self._hex_to_rgba(threat_color)
+                    else:
+                        badge_color = "rgba(120, 144, 156, 255)"
+                else:
+                    badge_color = "rgba(120, 144, 156, 255)"
                 
             self.status_badge.setStyleSheet(f"""
                 QLabel {{
@@ -319,6 +328,14 @@ class ProfileCard(GlassPanel):
             
             # Update notes
             self.notes_label.setText(profile.notes)
+    
+    def _hex_to_rgba(self, hex_color):
+        """Convert hex color to RGBA string"""
+        hex_color = hex_color.lstrip('#')
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        return f"rgba({r}, {g}, {b}, 255)"
 
 
 class ModernMainWindow(QMainWindow):
@@ -626,6 +643,43 @@ class ModernMainWindow(QMainWindow):
         """)
         status_layout.addWidget(scanner_btn)
         
+        # Settings button
+        settings_btn = QPushButton("⚙️ Settings")
+        settings_btn.clicked.connect(self.open_settings)
+        settings_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        settings_btn.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(
+                    x1:0, y1:0, x2:1, y2:0,
+                    stop:0 rgb(100, 150, 255),
+                    stop:1 rgb(120, 170, 255)
+                );
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 8px 16px;
+                font-size: 12px;
+                font-weight: 600;
+                margin-left: 10px;
+                font-family: 'Segoe UI', Arial;
+            }
+            QPushButton:hover {
+                background: qlineargradient(
+                    x1:0, y1:0, x2:1, y2:0,
+                    stop:0 rgb(110, 160, 255),
+                    stop:1 rgb(130, 180, 255)
+                );
+            }
+            QPushButton:pressed {
+                background: qlineargradient(
+                    x1:0, y1:0, x2:1, y2:0,
+                    stop:0 rgb(90, 140, 245),
+                    stop:1 rgb(110, 160, 245)
+                );
+            }
+        """)
+        status_layout.addWidget(settings_btn)
+        
         self.fps_label = QLabel("FPS: 0")
         self.fps_label.setStyleSheet("""
             QLabel {
@@ -714,6 +768,35 @@ class ModernMainWindow(QMainWindow):
         self.timer.start(30)
         
         print("✓ Face scanner closed, database reloaded")
+    
+    def open_settings(self):
+        """Open settings dialog"""
+        # Pause video timer
+        self.timer.stop()
+        
+        # Create and show settings dialog
+        dialog = SettingsDialog(self)
+        dialog.settings_changed.connect(self.apply_settings)
+        
+        if dialog.exec():
+            print("✓ Settings saved successfully")
+        
+        # Resume video timer
+        self.timer.start(30)
+    
+    def apply_settings(self):
+        """Apply updated settings to the application"""
+        print("⚙️ Applying new settings...")
+        
+        # Update FPS display visibility
+        self.fps_label.setVisible(settings.get("show_fps", True))
+        
+        # Reload profile card to apply new colors
+        if hasattr(self, 'current_profile') and self.current_profile:
+            self.profile_card.updateProfile(self.current_profile)
+        
+        print("✓ Settings applied (some changes require restart)")
+    
         
     def update_frame(self):
         """Update video frame and process faces"""

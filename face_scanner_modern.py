@@ -15,6 +15,7 @@ from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, pyqtPrope
 from PyQt6.QtGui import QImage, QPixmap, QPainter, QColor, QLinearGradient, QFont, QPainterPath
 import json
 from datetime import datetime
+from settings_manager import settings
 
 
 class ModernButton(QPushButton):
@@ -430,10 +431,15 @@ class FaceScannerWindow(QMainWindow):
         self.form_fields["age"].setValue(30)
         right_layout.addWidget(self.form_fields["age"])
         
-        # Gender
+        # Gender - populated from settings
         right_layout.addWidget(self.create_label("Gender"))
         self.form_fields["gender"] = ModernComboBox()
-        self.form_fields["gender"].addItems(["Male", "Female", "Other"])
+        self.form_fields["gender"].addItems(settings.get("gender_options", ["Male", "Female", "Other"]))
+        # Set default
+        default_gender = settings.get("default_gender", "Male")
+        index = self.form_fields["gender"].findText(default_gender)
+        if index >= 0:
+            self.form_fields["gender"].setCurrentIndex(index)
         right_layout.addWidget(self.form_fields["gender"])
         
         # Occupation
@@ -446,16 +452,26 @@ class FaceScannerWindow(QMainWindow):
         self.form_fields["nationality"] = ModernInput("Enter nationality")
         right_layout.addWidget(self.form_fields["nationality"])
         
-        # Status
+        # Status - populated from settings
         right_layout.addWidget(self.create_label("Status"))
         self.form_fields["status"] = ModernComboBox()
-        self.form_fields["status"].addItems(["CIVILIAN", "VIP", "EMPLOYEE", "VISITOR"])
+        self.form_fields["status"].addItems(settings.get_status_types())
+        # Set default
+        default_status = settings.get("default_status", "CIVILIAN")
+        index = self.form_fields["status"].findText(default_status)
+        if index >= 0:
+            self.form_fields["status"].setCurrentIndex(index)
         right_layout.addWidget(self.form_fields["status"])
         
-        # Threat Level
+        # Threat Level - populated from settings
         right_layout.addWidget(self.create_label("Threat Level"))
         self.form_fields["threat_level"] = ModernComboBox()
-        self.form_fields["threat_level"].addItems(["LOW", "MODERATE", "HIGH"])
+        self.form_fields["threat_level"].addItems(settings.get_threat_levels())
+        # Set default
+        default_threat = settings.get("default_threat_level", "LOW")
+        index = self.form_fields["threat_level"].findText(default_threat)
+        if index >= 0:
+            self.form_fields["threat_level"].setCurrentIndex(index)
         right_layout.addWidget(self.form_fields["threat_level"])
         
         # Notes

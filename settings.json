@@ -1,0 +1,73 @@
+{
+    "auto_capture_enabled": false,
+    "auto_capture_interval": 2.0,
+    "capture_count_target": 5,
+    "scanner_camera_index": 0,
+    "recognition_threshold": 0.8,
+    "confidence_threshold": 0.5,
+    "process_every_n_frames": 2,
+    "camera_index": 0,
+    "camera_width": 1280,
+    "camera_height": 720,
+    "mirror_mode": true,
+    "show_fps": true,
+    "show_confidence": false,
+    "animation_speed": 1.0,
+    "threat_levels": [
+        {
+            "name": "LOW",
+            "color": "#00C864"
+        },
+        {
+            "name": "MODERATE",
+            "color": "#FFA500"
+        },
+        {
+            "name": "HIGH",
+            "color": "#FF4444"
+        },
+        {
+            "name": "CRITICAL",
+            "color": "#8B0000"
+        }
+    ],
+    "status_types": [
+        {
+            "name": "CIVILIAN",
+            "color": "#6C757D"
+        },
+        {
+            "name": "VIP",
+            "color": "#FFD700"
+        },
+        {
+            "name": "EMPLOYEE",
+            "color": "#0096FF"
+        },
+        {
+            "name": "VISITOR",
+            "color": "#9370DB"
+        },
+        {
+            "name": "WANTED",
+            "color": "#DC143C"
+        },
+        {
+            "name": "UNKNOWN",
+            "color": "#808080"
+        },
+        {
+            "name": "GOD",
+            "color": "#aa0000"
+        }
+    ],
+    "gender_options": [
+        "Male",
+        "Female",
+        "Other",
+        "Prefer not to say"
+    ],
+    "default_status": "CIVILIAN",
+    "default_threat_level": "LOW",
+    "default_gender": "Male"
+}
